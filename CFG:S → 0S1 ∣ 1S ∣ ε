@@ -15,16 +15,16 @@ scanner.l
 %{
 #include "parser.tab.h"
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 %}
 
 %%
-
-[01]+      { yylval.sval = strdup(yytext); return STRING; }
-\n         { return '\n'; }
-.          { return INVALID; }
-
+[01]+   {yylval.str = strdup(yytext);return STRING;
+        }
+\n      ;
+[ \t]   ;
+.       { printf("Invalid Input\n"); exit(1); }
 %%
 
 int yywrap() { return 1; }
@@ -35,90 +35,59 @@ parser.y
 #include <stdlib.h>
 #include <string.h>
 
-void yyerror(const char *s);
 int yylex(void);
+void yyerror(const char *s);
 
-int yyparse_string(const char *s);
-int parse_S(const char *s, int *i, int len);
+/*
+   Grammar:
+   S → 0 S 1 | 1 S | ε
+*/
+int check(const char *s, int i, int j);
 %}
 
-%union {
-    char* sval;
+%union { char *str; }
+
+%token <str> STRING
+
+%%
+
+lines:
+      | lines STRING {
+            const char *str = $2;
+            int n = strlen(str);
+
+            if (check(str, 0, n-1))
+                printf("String is accepted.\n");
+            else
+                printf("Syntax error.\n");
+
+            free($2);
+        }
+      ;
+
+%%
+
+int check(const char *s, int i, int j)
+{
+    if (i > j) return 1;
+
+    /* 0 S 1 */
+    if (s[i] == '0' && s[j] == '1')
+        if (check(s, i+1, j-1)) return 1;
+
+    /* 1 S */
+    if (s[i] == '1')
+        if (check(s, i+1, j)) return 1;
+
+    return 0;
 }
 
-%token <sval> STRING
-%token INVALID
-
-%%
-
-input:
-      /* empty */
-    | input line
-    ;
-
-line:
-      STRING {
-                 printf("Input String: %s\n", $1);
-                 printf("Parsing result: ");
-                 if (yyparse_string($1))
-                     printf("String is accepted.\n");
-                 else
-                     printf("Syntax error.\n");
-                 free($1);
-             }
-    | INVALID { printf("Invalid Input\n"); }
-    | '\n'
-    ;
-
-%%
+void yyerror(const char *s) { fprintf(stderr, "%s\n", s); }
 
 int main() {
-    printf("Enter strings (Ctrl+D to end):\n");
-    return yyparse();
-}
-
-// CFG: S → 0 S 1 | 1 S | ε
-int yyparse_string(const char *s) {
-    int i = 0;
-    int len = strlen(s);
-
-    if (parse_S(s, &i, len) && i == len)
-        return 1;
-    else
-        return 0;
-}
-
-// BACKTRACKING PARSER (Fully Fixed)
-int parse_S(const char *s, int *i, int len) {
-    int start = *i;
-
-    // Try: 0 S 1
-    if (*i < len && s[*i] == '0') {
-        (*i)++;
-        if (parse_S(s, i, len)) {
-            if (*i < len && s[*i] == '1') {
-                (*i)++;
-                return 1;
-            }
-        }
-        *i = start; // backtrack
-    }
-
-    // Try: 1 S
-    if (*i < len && s[*i] == '1') {
-        (*i)++;
-        if (parse_S(s, i, len)) {
-            return 1;
-        }
-        *i = start; // backtrack
-    }
-
-    // ε-rule
-    return 1;
-}
-
-void yyerror(const char *s) {
-    printf("Error: %s\n", s);
+    printf("Enter strings :\n");
+    yyparse();
+    return 0;
 }
 
 
