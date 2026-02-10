@@ -1,0 +1,124 @@
+Write a C program using Flex and Bison to check whether a string belongs to this
+grammar. Use a scanner to accept only 0 and 1. If any other character is present,
+print "Invalid Input". The parser should check the string and print whether it is
+accepted.
+S → 0S1 ∣ 1S ∣ ε
+
+Sample Input/Output:
+01: String is accepted.
+101: String is accepted.
+0011: String is accepted.
+10: Syntax error
+a01: Invalid Input
+
+scanner.l
+%{
+#include "parser.tab.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+%}
+
+%%
+
+[01]+      { yylval.sval = strdup(yytext); return STRING; }
+\n         { return '\n'; }
+.          { return INVALID; }
+
+%%
+
+int yywrap() { return 1; }
+
+parser.y
+%{
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+void yyerror(const char *s);
+int yylex(void);
+
+int yyparse_string(const char *s);
+int parse_S(const char *s, int *i, int len);
+%}
+
+%union {
+    char* sval;
+}
+
+%token <sval> STRING
+%token INVALID
+
+%%
+
+input:
+      /* empty */
+    | input line
+    ;
+
+line:
+      STRING {
+                 printf("Input String: %s\n", $1);
+                 printf("Parsing result: ");
+                 if (yyparse_string($1))
+                     printf("String is accepted.\n");
+                 else
+                     printf("Syntax error.\n");
+                 free($1);
+             }
+    | INVALID { printf("Invalid Input\n"); }
+    | '\n'
+    ;
+
+%%
+
+int main() {
+    printf("Enter strings (Ctrl+D to end):\n");
+    return yyparse();
+}
+
+// CFG: S → 0 S 1 | 1 S | ε
+int yyparse_string(const char *s) {
+    int i = 0;
+    int len = strlen(s);
+
+    if (parse_S(s, &i, len) && i == len)
+        return 1;
+    else
+        return 0;
+}
+
+// BACKTRACKING PARSER (Fully Fixed)
+int parse_S(const char *s, int *i, int len) {
+    int start = *i;
+
+    // Try: 0 S 1
+    if (*i < len && s[*i] == '0') {
+        (*i)++;
+        if (parse_S(s, i, len)) {
+            if (*i < len && s[*i] == '1') {
+                (*i)++;
+                return 1;
+            }
+        }
+        *i = start; // backtrack
+    }
+
+    // Try: 1 S
+    if (*i < len && s[*i] == '1') {
+        (*i)++;
+        if (parse_S(s, i, len)) {
+            return 1;
+        }
+        *i = start; // backtrack
+    }
+
+    // ε-rule
+    return 1;
+}
+
+void yyerror(const char *s) {
+    printf("Error: %s\n", s);
+}
+
+
