@@ -1,0 +1,95 @@
+Write a Lex and Yacc program that takes a context-free grammar as input and
+identifies whether the grammar contains left recursion, right recursion, or neither
+recursion. If it has left recursion, then remove it.
+
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 10
+#define MAXLEN 100
+
+struct Production {
+    char nonTerminal;
+    char rhs[MAX][MAXLEN];
+    int count;
+};
+
+int main() {
+    int n;
+    struct Production p[MAX];
+    char temp[MAXLEN];
+    printf("Enter number of productions: ");
+    scanf("%d", &n);
+    getchar(); // clear newline
+
+    // Input productions
+    for (int i = 0; i < n; i++) {
+        printf("Enter production %d (Example: E->E+T|T): ", i + 1);
+        fgets(temp, sizeof(temp), stdin);
+        temp[strcspn(temp, "\n")] = '\0'; // remove newline
+
+        p[i].nonTerminal = temp[0];
+        p[i].count = 0;
+
+        // Split RHS parts by '|'
+        char *rhsPart = strtok(temp + 3, "|");
+        while (rhsPart != NULL) {
+            strcpy(p[i].rhs[p[i].count++], rhsPart);
+            rhsPart = strtok(NULL, "|");
+        }
+    }
+
+    printf("\nAnalyzing Grammar...\n");
+
+    for (int i = 0; i < n; i++) {
+        int hasLeftRecursion = 0;
+        int hasRightRecursion = 0;
+
+        for (int j = 0; j < p[i].count; j++) {
+            if (p[i].rhs[j][0] == p[i].nonTerminal)
+                hasLeftRecursion = 1;
+            int len = strlen(p[i].rhs[j]);
+            if (p[i].rhs[j][len - 1] == p[i].nonTerminal)
+                hasRightRecursion = 1;
+        }
+
+        printf("\nProduction %c:\n", p[i].nonTerminal);
+        if (hasLeftRecursion)
+            printf("  -> Left Recursive detected\n");
+        if (hasRightRecursion)
+            printf("  -> Right Recursive detected\n");
+        if (!hasLeftRecursion && !hasRightRecursion)
+            printf("  -> No recursion detected.\n");
+
+        if (hasLeftRecursion) {
+            char alpha[MAX][MAXLEN], beta[MAX][MAXLEN];
+            int alphaCount = 0, betaCount = 0;
+
+            for (int j = 0; j < p[i].count; j++) {
+                if (p[i].rhs[j][0] == p[i].nonTerminal)
+                    strcpy(alpha[alphaCount++], p[i].rhs[j] + 1); // skip A
+                else
+                    strcpy(beta[betaCount++], p[i].rhs[j]);
+            }
+
+            printf("\nRemoving Left Recursion for %c...\n", p[i].nonTerminal);
+            printf("After removal:\n");
+
+            // A → βA'
+            printf("%c -> ", p[i].nonTerminal);
+            for (int j = 0; j < betaCount; j++) {
+                printf("%s%c'", beta[j], p[i].nonTerminal);
+                if (j < betaCount - 1) printf("|");
+            }
+
+            printf("\n%c' -> ", p[i].nonTerminal);
+            for (int j = 0; j < alphaCount; j++) {
+                printf("%s%c'", alpha[j], p[i].nonTerminal);
+                if (j < alphaCount - 1) printf("|");
+            }
+            printf("|epsilon\n");
+        }
+    }
+
+    return 0;
+}
