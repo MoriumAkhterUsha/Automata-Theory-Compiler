@@ -1,13 +1,13 @@
-Write a Lexical Analyzer using Flex and Bison that reads multiple sentences from the user input
+/* Write a Lexical Analyzer using Flex and Bison that reads multiple sentences from the user input
 and performs the following tasks:
 1. Detects each sentence entered by the user.
 2. Considers a sentence as any sequence of characters ending with a period (.).
 3. Prints each detected sentence on a new line, along with its line number (e.g., Line 1, Line
 2, etc.).
 4. At the end of the input, it displays the total number of sentences (lines) detected.
-5. Ignores extra whitespace (spaces, tabs, or newlines).
+5. Ignores extra whitespace (spaces, tabs, or newlines).*/
 
-scanner.l
+//scanner.l
 %{
 #include "parser.tab.h"
 #include <string.h>
@@ -21,7 +21,7 @@ scanner.l
 
 int yywrap() { return 1; }
 
-parser.y
+//parser.y
 %{
 #include <stdio.h>
 #include <stdlib.h>
