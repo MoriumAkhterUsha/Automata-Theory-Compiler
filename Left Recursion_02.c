@@ -1,6 +1,6 @@
-Write a Lex and Yacc program that takes a context-free grammar as input and
+/*Write a Lex and Yacc program that takes a context-free grammar as input and
 identifies whether the grammar contains left recursion, right recursion, or neither
-recursion.
+recursion.*/
 
 #include <stdio.h>
 #include <string.h>
