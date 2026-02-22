@@ -1,6 +1,6 @@
 // CFG(Context Free Grammar): S → aSb | ε
 
-scanner.l
+//scanner.l
 %{
 #include "parser.tab.h"
 #include <stdio.h>
@@ -14,7 +14,7 @@ scanner.l
 
 int yywrap() { return 1; }
 
-parser.y
+//parser.y
 %{
 #include <stdio.h>
 #include <stdlib.h>
