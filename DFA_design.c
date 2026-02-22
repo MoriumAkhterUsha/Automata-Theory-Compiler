@@ -1,4 +1,4 @@
-scanner.l
+//scanner.l
 %{
 #include "parser.tab.h"
 %}
@@ -14,7 +14,7 @@ int yywrap() {
     return 1;
 }
 
-parser.y
+//parser.y
 %{
 #include <stdio.h>
 #include <stdlib.h>
