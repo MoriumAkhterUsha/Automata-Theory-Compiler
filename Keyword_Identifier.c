@@ -1,4 +1,4 @@
-scanner.l
+//scanner.l
 %{
 #include "parser.tab.h"
 %}
@@ -19,7 +19,7 @@ int|float|if|else|while|return {
 %%
 int yywrap() { return 1; }
 
-parser.y
+//parser.y
 %{
 #include <stdio.h>
 
