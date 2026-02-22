@@ -1,4 +1,4 @@
-Write a C program using Flex and Bison to check whether a string belongs to this
+/*Write a C program using Flex and Bison to check whether a string belongs to this
 grammar. Use a scanner to accept only 0 and 1. If any other character is present,
 print "Invalid Input". The parser should check the string and print whether it is
 accepted.
@@ -9,9 +9,9 @@ Sample Input/Output:
 101: String is accepted.
 0011: String is accepted.
 10: Syntax error
-a01: Invalid Input
+a01: Invalid Input*/
 
-scanner.l
+//scanner.l
 %{
 #include "parser.tab.h"
 #include <stdio.h>
@@ -29,7 +29,7 @@ scanner.l
 
 int yywrap() { return 1; }
 
-parser.y
+//parser.y
 %{
 #include <stdio.h>
 #include <stdlib.h>
