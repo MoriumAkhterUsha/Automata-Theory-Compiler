@@ -1,4 +1,4 @@
-Write a Lexical Analyzer using Flex and Bison that reads a given text (sentence or code snippet)
+/*Write a Lexical Analyzer using Flex and Bison that reads a given text (sentence or code snippet)
 and performs the following tasks:
 1. Detect all identifiers
    A valid identifier starts with a letter or underscore (_) followed by letters, digits,
@@ -11,9 +11,9 @@ and performs the following tasks:
    An invalid token is a word that starts with a number but contains letters
    afterwards (e.g., 12abc, 45x). Such tokens are neither valid identifiers nor
    constants.
-4. Ignore all special symbols and punctuation (like =, ;, .) and whitespace.
+4. Ignore all special symbols and punctuation (like =, ;, .) and whitespace.*/
 
-scanner.l
+//scanner.l
 %{
 #include "parser.tab.h"
 #include <string.h>
@@ -30,7 +30,7 @@ scanner.l
 
 int yywrap() { return 1; }
 
-parser.y
+//parser.y
 %{
 #include <stdio.h>
 #include <stdlib.h>
